@@ -1,0 +1,35 @@
+﻿
+IModel = Lua.Require("IModel")
+
+local this = {
+	__metatable = "getmetatable is error",
+	__newindex = function (tab,key,value)
+		error("The interface is protected")
+	end
+}
+local Controllers = {}
+
+--实例化的时候由子controller来决定自己的mainType是什么
+function this:New(mainType) 
+	assert(mainType and type(mainType) == "string" ,"The mainType is error")
+	local tab = {__LIMIT = true,Request = 0}
+	setmetatable(tab,self)	
+	self.__index = self
+	Controllers[mainType] = tab
+	return tab
+end
+ 
+function this:GetModel(name)
+	assert(self.__LIMIT,"The self is not IController")
+	return IModel.GetModel(name)
+end
+
+function this:Request(mainType,subType,func,...)
+	assert(self.TAG == "IView")
+	local req = Controllers[mainType]
+	if req and req.Request then
+		req.Request(subType,func,...)
+	end
+end 
+
+return this

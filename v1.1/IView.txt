@@ -1,0 +1,72 @@
+﻿
+IController = Lua.Require("IController")
+
+local this = {
+	__metatable = "getmetatable is error",
+	--向控制器发送请求(主事件类型 ,辅事件类型,回调函数, 可变参数)
+	__call = function (self,mainType,subType,func,...)
+		IController.Request(self,mainType,subType,func,...)
+	end,
+	__newindex = function (tab,key,value)
+		error("The child view is protected")
+	end
+}
+local Views = {}
+
+function this:New(name,pathName)
+	assert(pathName and name,"Parameter is not enough ")
+	assert(self == this)
+	local tab = {
+		__tostring = "The table name is "..name,
+		TAG = "IView",
+		name = name,
+		myView = GameObject.Find(pathName),
+		Show = 0,
+		Hide = 0, 
+		Update = 0
+	}
+	setmetatable(tab,self)
+	self.__index = self
+	Views[name] = tab 
+	return tab
+end
+
+function this:__Show(name,...)
+	assert(self ~= this and self.name,"self is not type IView")
+	if Views[name] ~= nil then
+		Views[name].Show(...)
+	end
+end
+
+function this:__Hide(name,...)
+	assert(self ~= this and self.name,"self is not type IView")
+	if Views[name] ~= nil then
+		Views[name].Hide(...)
+	end
+end
+
+function this:__Update(name,...)
+	assert(self ~= this and self.name,"self is not type IView")
+	if Views[name] ~= nil then
+		Views[name].Update(...)
+	end
+end
+
+function this.GetViewState(name)
+	assert(name and type(name) == "string","The name is error")
+	if Views[name] ~= nil then
+		return Views[name].myView.activeSelf
+	end
+end
+
+function this:Push(gameobject)
+	if gameobject then
+		gameobject.transform:SetAsLastSibling()
+	else
+		if self.myView then
+			self.myView.transform:SetAsLastSibling()
+		end
+	end
+end
+
+return this

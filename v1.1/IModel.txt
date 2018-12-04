@@ -1,0 +1,26 @@
+
+local this = {
+	__metatable = "getmetatable is error",
+}
+
+local Models = {}
+
+function this:New(name) 
+	local tab = {}
+	setmetatable(tab,self)
+	self.__index = self
+	Models[name] = tab
+	return tab
+end
+
+function this.GetModel(name)
+	if Models[name] ~= nil and type(Models[name] == "table")then
+		local tab = {}
+		for k,v in pairs(Models[name]) do
+			tab[k] = v
+		end
+		return tab
+	end 
+end
+
+return this
