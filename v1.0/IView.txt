@@ -1,0 +1,46 @@
+﻿
+local this = {}
+
+local views = {}
+
+IController = Lua.Require("Controller/IController")
+
+
+function this:New(name)
+	local tab = {}
+	setmetatable(tab,self)
+	self.__index = self
+	tab.name = name
+	views[name] = tab
+	return tab
+end
+
+function this.Show(name,...)
+	if views[name] ~= nil then
+		views[name].ShowSelf(...)
+	end
+end
+
+function this.Push(gameobject)
+	assert(gameobject,"The gameObject is nil")
+	gameobject.transform:SetAsLastSibling()
+end
+
+function this.Hide(name,...)
+	if views[name] ~= nil then
+		views[name].HideSelf(...)
+	end
+end
+
+function this.Update(name,...)
+	if views[name] ~= nil then
+		views[name].UpdateSelf(...)
+	end
+end
+--向控制器发送请求(主事件类型 ,辅事件类型,回调函数, 可变参数)
+function this:Request(mainType,subType,func,...)
+	IController.Request(self,mainType,subType,func,...)
+end
+--------------------------------
+
+return this

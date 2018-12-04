@@ -1,0 +1,44 @@
+﻿
+local this = {}
+local _Events = {}
+
+function this.AddListenerEvent(name,func)
+	if name == nil or func == nil then
+		return
+    end
+    if type(name) ~= "string" or type(func) ~= "function" then
+        return
+    end
+    if _Events[name] == nil then
+        _Events[name] = {}
+    end
+    table.insert(_Events[name],func)
+end
+function this.Brocast(name,...)
+	if type(name) ~= "string" then
+        return
+    end
+    if _Events[name] == nil then
+        return
+    end
+    for k,func in ipairs(_Events[name]) do
+        func(...)
+    end
+end
+function this.RemoveListenerEvent(name,func)
+	if name == nil or func == nil then
+        return
+    end
+    if type(name) ~= "string" or type(func) ~= "function" then
+        return
+    end
+    if _Events[name] ~= nil then
+        for i,v in ipairs(_Events[name]) do
+            if v == func then
+                table.remove(_Events[name],i)
+                break
+            end
+        end
+    end
+end
+return this

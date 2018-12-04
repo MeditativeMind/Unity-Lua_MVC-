@@ -1,0 +1,30 @@
+
+local this = {}
+local Controllers = {}
+IModel = Lua.Require("Model/IModel")
+--实例化的时候由子controller来决定自己的mainType是什么
+function this:New(mainType) 
+	local tab = {}
+	setmetatable(tab,self)
+	self.__index = self
+	Controllers[mainType] = tab
+	return tab
+end
+ 
+function this.GetModel(name)
+	return IModel.GetModel(name)
+end
+
+--视图发过来的请求 子controller是不能使用的。
+function this:Request(mainType,subType,func,...)
+	assert(self.name,"self is not IView type")
+	if mainType == nil or subType == nil then
+		return
+	end
+	if Controllers[mainType].Request ~= nil then
+		Controllers[mainType].Request(subType,func,...)
+	end
+end 
+
+
+return this
